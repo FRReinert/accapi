@@ -1,3 +1,12 @@
+![GitHub](https://img.shields.io/github/license/FRReinert/accapi)
+![GitHub last commit](https://img.shields.io/github/last-commit/FRReinert/accapi)
+
+![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/FRReinert/accapi/fastapi)
+![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/FRReinert/accapi/pydantic)
+![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/FRReinert/accapi/uvicorn)
+![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/FRReinert/accapi/firebase-admin)
+![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/FRReinert/accapi/pytest)
+
 ## Prepare environment
 
 ```sh
