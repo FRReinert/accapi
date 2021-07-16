@@ -69,8 +69,10 @@ def is_user_older_then_eighteen(func):
     '''Is user older then eighteen'''
 
     def wrap(value: str):
-        mininum_date_accepted = datetime.date.today(
-        ) - datetime.timedelta(days=(365.24 * 18))
+        today = datetime.date.today()
+        eighteen_years = datetime.timedelta(days=(365.24 * 18))
+        
+        mininum_date_accepted = today - eighteen_years
         informed_date = datetime.datetime.strptime(value, '%d/%m/%Y').date()
 
         if informed_date > mininum_date_accepted:

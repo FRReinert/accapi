@@ -4,6 +4,11 @@ __email__ = 'Fabricio Reinert <fabricio.reinert@live.com>'
 
 from fastapi import FastAPI
 from account_api.api import user
+import os
 
 app = FastAPI()
 app.include_router(user.router)
+
+if __name__ == "__main__" and os.environ.get('ACCAPI_DEBUG') == 'true':
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

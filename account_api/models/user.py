@@ -5,14 +5,16 @@ TODO
     [X] Validar se a data de nascimento é maior ou igual que 18 anos;
     [X] O id do objeto User é o ID gerado pelo banco de dados;
 '''
-from pydantic import BaseModel, Field, validator
-from account_api.common.database import ModelManager
+from typing import Optional
 from account_api.common.validators import *
+from account_api.models.base import IModel
+from pydantic import BaseModel, Field, validator
 
-class User(BaseModel):
+
+class User(IModel, BaseModel):
     '''User Base Model'''
 
-    id: str = Field(title="id", description="Id do usuário")
+    id: Optional[str] = Field(title="id", description="Id do usuário")
     full_name: str = Field(title="fullName", description="Nome completo do usuario", max_length=30) 
     email: str = Field(title="email", description="E-mail do usuario", max_length=200) 
     phone: str = Field(title="phone", description="Telefone do usuario (DDI + DDD + NUMERO)", max_length=25) 
@@ -54,14 +56,16 @@ class User(BaseModel):
     @staticmethod
     def from_dict(**kwargs) -> object:
         '''Instantiate class from dictionary of data'''
-
-        data = {
-            'id': kwargs['id'],
-            'full_name': kwargs['fullName'],
-            'email': kwargs['email'],
-            'phone': kwargs['phone'],
-            'birth_day': kwargs['birthDay'],
-            'document': kwargs['document']
-        }
-
-        return User(**data)
+        try:
+            data = {
+                'id': kwargs['id'],
+                'full_name': kwargs['fullName'],
+                'email': kwargs['email'],
+                'phone': kwargs['phone'],
+                'birth_day': kwargs['birthDay'],
+                'document': kwargs['document']
+            }
+            return User(**data)
+        
+        except ValueError as e:
+            print(e)
