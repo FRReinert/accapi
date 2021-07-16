@@ -4,9 +4,9 @@ from typing import Any
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-cred = credentials.Certificate(os.environ.get('GOOGLE_CERTIFICATE'))
+cred = credentials.Certificate(os.environ.get('ACCAPI_G_CERTIFICATE'))
 firebase_admin.initialize_app(
-    cred, {'projectId': os.environ.get('GOOGLE_PROJECT_ID'), })
+    cred, {'projectId': os.environ.get('ACCAPI_G_PROJECT_ID'), })
 
 
 class ModelManager:

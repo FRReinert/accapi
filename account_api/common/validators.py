@@ -37,8 +37,7 @@ def validate_personal_id(func) -> bool:
         # reverse doc and compare with original
         # If its equal, means its not valid
         if value == value[::-1]:
-            raise InvalidDocument(
-                'Documento não pode conter todos os digitos iguais')
+            raise InvalidDocument('Documento nao pode conter todos os digitos iguais')
 
         # validat 1st digit
         sum_result = 0
@@ -49,7 +48,7 @@ def validate_personal_id(func) -> bool:
         print(mod_result)
         expected_digit_one = 0 if mod_result == 10 else mod_result
         if int(value[9]) != expected_digit_one:
-            raise InvalidDocument('Incorrect digit 1')
+            raise InvalidDocument('Digito verificador incorreto')
 
         # validat 2st digit
         sum_result = 0
@@ -59,7 +58,7 @@ def validate_personal_id(func) -> bool:
         mod_result = sum_result % 11
         expected_digit_two = 0 if mod_result == 10 else mod_result
         if int(value[10]) != expected_digit_two:
-            raise InvalidDocument('Incorrect digit 2')
+            raise InvalidDocument('Digito verificador incorreto')
 
         return value
 
@@ -75,7 +74,7 @@ def is_user_older_then_eighteen(func):
         informed_date = datetime.datetime.strptime(value, '%d/%m/%Y').date()
 
         if informed_date > mininum_date_accepted:
-            raise InvalidBirthday('User is not old enough')
+            raise InvalidBirthday('Idade nao autorizada')
 
         return value
 
@@ -90,7 +89,7 @@ def is_email_valid(func):
         re.search(regex, value)
 
         if not re.search(regex, value):
-            raise InvalidEmail('Email is not valid')
+            raise InvalidEmail('E-mail invalido')
         return value
 
     return wrap
@@ -102,16 +101,16 @@ def is_phone_valid(func):
     def wrap(value: str) -> str:
 
         if ' ' in value:
-            raise InvalidPhone('Do not use spaces')
+            raise InvalidPhone('Informar telefone sem espacos')
 
         if value.isdigit() == False:
-            raise InvalidPhone('Only numbers allowed')
+            raise InvalidPhone('Informar apenas numeros')
 
         regex = r"^[0-9]{2,3}[0-9]{2}[0-9]{9}$"
         re.search(regex, value)
 
         if not re.search(regex, value):
-            raise InvalidPhone('Phone is not valid')
+            raise InvalidPhone('Telefone invalido, utilize o  padrao "xxxyyyzzzzzzzz"')
         return value
 
     return wrap
