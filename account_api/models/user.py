@@ -1,6 +1,6 @@
 '''
 TODO
-    [ ] Não permitir o cadastro de CPF ou e-mail duplicado;
+    [X] Não permitir o cadastro de CPF ou e-mail duplicado;
     [X] Validar se CPF, e-mail, telefone são dados válidos;
     [X] Validar se a data de nascimento é maior ou igual que 18 anos;
     [X] O id do objeto User é o ID gerado pelo banco de dados;
@@ -8,6 +8,7 @@ TODO
 from typing import Optional
 from account_api.common.validators import *
 from account_api.models.base import IModel
+from account_api.common.database import ModelManager
 from pydantic import BaseModel, Field, validator
 
 
@@ -21,31 +22,10 @@ class User(IModel, BaseModel):
     birth_day: str = Field(title="birthDay", description="Timestamp da data de nascimento do usuario", max_length=10) 
     document: str = Field(title="document", description="Numero do documento do usuario", max_length=20)
 
-    @validator('email')
-    @is_email_valid
-    def validate_email(cls, value: str) -> str:
-        return value
-
-    @validator('phone')
-    @is_phone_valid
-    def validate_phone(cls, value: str) -> str:
-        return value
-
-    @validator('document')
-    @validate_personal_id
-    def validate_id(cls, value):
-        return value
-
-    @validator('birth_day')
-    @is_user_older_then_eighteen
-    def validate_birthday(cls, value: str) -> str:
-        return value
-
     def to_dict(self) -> dict:
         '''Return dictionary representing User document'''
 
-        return {
-            'id': self.id,
+        data = {
             'fullName': self.full_name,
             'email': self.email,
             'phone': self.phone,
@@ -53,19 +33,38 @@ class User(IModel, BaseModel):
             'document': self.document,
         }
 
+        if self.id:
+            data['id'] = self.id
+        
+        return data
+
     @staticmethod
     def from_dict(**kwargs) -> object:
         '''Instantiate class from dictionary of data'''
-        try:
-            data = {
-                'id': kwargs['id'],
-                'full_name': kwargs['fullName'],
-                'email': kwargs['email'],
-                'phone': kwargs['phone'],
-                'birth_day': kwargs['birthDay'],
-                'document': kwargs['document']
-            }
-            return User(**data)
-        
-        except ValueError as e:
-            print(e)
+
+        data = {
+            'full_name': kwargs['fullName'],
+            'email': kwargs['email'],
+            'phone': kwargs['phone'],
+            'birth_day': kwargs['birthDay'],
+            'document': kwargs['document']
+        }
+
+        if 'id' in kwargs.keys():
+            data['id'] = kwargs['id']
+
+        return User(**data)
+
+    def validate_fields(self) -> None:
+        '''Validate Fields before create'''
+
+        is_phone_valid(self.phone)
+        is_document_valid(self.document)
+        is_email_valid(self.email)
+        is_user_older_then_eighteen(self.birth_day)
+
+    def validate_unique(self, manager) -> None:
+        '''Validate Fields before update'''
+
+        unique_field_valid(manager, 'email', self.email)
+        unique_field_valid(manager, 'document', self.document)

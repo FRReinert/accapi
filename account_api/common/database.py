@@ -1,62 +1,77 @@
+from account_api.models.base import IModel
 import os
-from typing import Any
 
 import firebase_admin
 from firebase_admin import credentials, firestore
+from mockfirestore import MockFirestore
 
-from account_api.models.base import IModel
-
-# Initialize credentials
 cred = credentials.Certificate(os.environ.get('ACCAPI_G_CERTIFICATE'))
-firebase_admin.initialize_app(
-    cred, {'projectId': os.environ.get('ACCAPI_G_PROJECT_ID'), })
+firebase_admin.initialize_app(cred, {'projectId': os.environ.get('ACCAPI_G_PROJECT_ID'), })
 
 
 class ModelManager:
     '''User Manager'''
 
-    def __init__(self, model: Any, collection: str) -> None:
-        self.model_class = model
-        self.collection = collection + '_test' if os.environ.get('ACCAPI_DEBUG') == 'true' else collection
+    def __init__(self, collection: str, test_mode: bool = False) -> None:
+        self.collection = collection
+        self.test_mode = test_mode
 
-        # Firestore initializer
-        self.db = firestore.client()
+        if self.test_mode:
+            self.db = MockFirestore()
+        else:
+            self.db = firestore.client()
 
-    def get(self, id: str) -> Any:
+    def get(self, id: str) -> dict:
         '''Get a single User document'''
 
-        user_ref = self.db.collection(self.collection).document(id)
-        doc = user_ref.get()
-
-        if doc.exists:
-            data = doc.to_dict()
+        user_doc = self.db.collection(self.collection).document(id).get()
+        if user_doc.exists:
+            data = user_doc.to_dict()
             data['id'] = id
-            print(data)
-            return self.model_class.from_dict(**data)
+            return data
 
         raise ValueError('Documento nao existe')
 
-    def filter(self, *args):
-        '''Apply filters to collection retrieving one or more documents'''
+    def filter(self, *args) -> list:
+        '''Filter documents and return them'''
         doc_ref = self.db.collection(self.collection).where(*args)
 
-        return doc_ref
+        return [doc for doc in doc_ref.stream()]
 
-    def create(self, model_fields: dict) -> str:
-        '''Create new User document'''
+    def create(self, model_obj: IModel) -> str:
+        '''Create new Document and return its ID'''
 
         try:
-            _, ref = self.db.collection(self.collection).add(model_fields)
+            _, ref = self.db.collection(self.collection).add(model_obj.to_dict())
+            return ref.id
+
         except Exception as e:
             raise ValueError('Nao foi possivel criar o documento: %s' % str(e))
-        
-        return ref
 
-    def update(self, id: int, **kwargs) -> None:
+    def update(self, id: int, user: IModel) -> bool:
         '''Update User document'''
-        pass
+
+        try:
+            user_ref = self.db.collection(self.collection).document(id)
+            user_ref.update(user.to_dict())
+            user_ref.get()
+            return self.get(id)
+        
+        except Exception as e:
+            raise ValueError('Nao foi possivel atualizar: %s' % str(e))
+
 
     def delete(self, id: int) -> None:
         '''Delete User'''
 
-        return self.db.collection(self.collection).document(id).delete()
+        raise NotImplementedError
+
+    def reset(self) -> bool:
+        '''Reset test database'''
+
+        if self.test_mode:
+            try:
+                self.db.reset()
+                return True
+            except:
+                return False
