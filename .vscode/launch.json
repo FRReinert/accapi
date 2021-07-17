@@ -12,15 +12,5 @@
             "env": {"PYTHONPATH": "${workspaceFolder}"},
             "args": ["account_api.main:app","--reload"]
         },
-        {
-            "name": "Main File",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/account_api/main.py",
-            "console": "integratedTerminal",
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}"
-            }
-        }
     ]
 }
