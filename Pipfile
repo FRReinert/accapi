@@ -11,6 +11,7 @@ google-cloud-firestore = "*"
 mock-firestore = "*"
 firebase-admin = "*"
 pytest = "*"
+gunicorn = "*"
 
 [dev-packages]
 autopep8 = "*"
