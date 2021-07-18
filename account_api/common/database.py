@@ -38,24 +38,24 @@ class ModelManager:
 
         return [doc for doc in doc_ref.stream()]
 
-    def create(self, model_obj: IModel) -> str:
+    def create(self, model_obj: IModel) -> IModel:
         '''Create new Document and return its ID'''
 
         try:
             _, ref = self.db.collection(self.collection).add(model_obj.to_dict())
-            return ref.id
+            return model_obj.from_dict(**self.get(ref.id))
 
         except Exception as e:
             raise ValueError('Nao foi possivel criar o documento: %s' % str(e))
 
-    def update(self, id: int, user: IModel) -> bool:
+    def update(self, id: int, model: IModel) -> IModel:
         '''Update User document'''
 
         try:
-            user_ref = self.db.collection(self.collection).document(id)
-            user_ref.update(user.to_dict())
-            user_ref.get()
-            return self.get(id)
+            model_ref = self.db.collection(self.collection).document(id)
+            model_ref.update(model.to_dict())
+            model_ref.get()
+            return model.from_dict(**self.get(model_ref.id))
         
         except Exception as e:
             raise ValueError('Nao foi possivel atualizar: %s' % str(e))

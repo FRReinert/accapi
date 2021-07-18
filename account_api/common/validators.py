@@ -31,12 +31,12 @@ def is_document_valid(value: str) -> bool:
 
     # Validate document length
     if len(value) != 11:
-        raise InvalidDocument('Documento deve ter 11 caracteres')
+        raise InvalidDocument('Deve ter 11 caracteres')
 
     # reverse doc and compare with original
     # If its equal, means its not valid
     if value == value[::-1]:
-        raise InvalidDocument('Documento nao pode conter todos os digitos iguais')
+        raise InvalidDocument('Nao pode conter todos os digitos iguais')
 
     # validat 1st digit
     sum_result = 0
@@ -71,7 +71,7 @@ def is_user_older_then_eighteen(value: str) -> bool:
     try:
         informed_date = datetime.datetime.strptime(value, '%d/%m/%Y').date()
     except Exception:
-        raise InvalidBirthday('Utilize o formato %d/%m/%Y')
+        raise InvalidBirthday('Utilize o formato DD/MM/YYYY')
 
     if informed_date > mininum_date_accepted:
         raise InvalidBirthday('Idade nao autorizada')
@@ -89,15 +89,6 @@ def is_email_valid(value: str) -> bool:
 
     return True
 
-def unique_field_valid(model_manager, field_name: str, value: str) -> bool:
-    '''Verify if value already exist in a specifc collection'''
-
-    model_doc = model_manager.filter(field_name,'==', value)
-    if len(model_doc) > 0:
-        raise DuplicatedValue(f'{field_name} ja cadastrado')
-    
-    return True
-
 def is_phone_valid(value: str) -> bool:
     '''Validate Phone'''
 
@@ -107,10 +98,19 @@ def is_phone_valid(value: str) -> bool:
     if value.isdigit() == False:
         raise InvalidPhone('Informar apenas numeros')
 
-    regex = r"^[0-9]{2,3}[0-9]{2}[0-9]{9}$"
+    regex = r"^[0-9]{2,3}[0-9]{2,3}[0-9]{8,9}$"
     re.search(regex, value)
 
     if not re.search(regex, value):
-        raise InvalidPhone('Telefone invalido, utilize o  padrao "xxxyyyzzzzzzzz"')
+        raise InvalidPhone('utilize o  padrao "xxxyyyzzzzzzzz"')
+    
+    return True
+
+def unique_field_valid(model_manager, field_name: str, value: str, *extra_args) -> bool:
+    '''Verify if value already exist in a specifc collection'''
+
+    model_doc: list = model_manager.filter(field_name,'==', value)
+    if len(model_doc) > 0:
+        raise DuplicatedValue(f'{field_name} ja cadastrado')
     
     return True

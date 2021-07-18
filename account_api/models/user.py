@@ -1,15 +1,8 @@
-'''
-TODO
-    [X] Não permitir o cadastro de CPF ou e-mail duplicado;
-    [X] Validar se CPF, e-mail, telefone são dados válidos;
-    [X] Validar se a data de nascimento é maior ou igual que 18 anos;
-    [X] O id do objeto User é o ID gerado pelo banco de dados;
-'''
 from typing import Optional
 from account_api.common.validators import *
 from account_api.models.base import IModel
 from account_api.common.database import ModelManager
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 
 class User(IModel, BaseModel):
@@ -56,15 +49,25 @@ class User(IModel, BaseModel):
         return User(**data)
 
     def validate_fields(self) -> None:
-        '''Validate Fields before create'''
+        '''Validate field values'''
 
         is_phone_valid(self.phone)
         is_document_valid(self.document)
         is_email_valid(self.email)
         is_user_older_then_eighteen(self.birth_day)
 
-    def validate_unique(self, manager) -> None:
-        '''Validate Fields before update'''
+    def validate_unique(self, manager: ModelManager, consider_self_document: bool) -> None:
+        '''Validate unique fields'''
 
-        unique_field_valid(manager, 'email', self.email)
-        unique_field_valid(manager, 'document', self.document)
+        if consider_self_document:
+            unique_field_valid(manager, 'email', self.email)
+            unique_field_valid(manager, 'document', self.document)
+
+        else:
+            filtered_emails: list = manager.filter('email','==', self.email)
+            if len([doc for doc in filtered_emails if doc.id != self.id]) > 0:
+                raise DuplicatedValue('email')
+            
+            filtered_docs: list = manager.filter('document','==', self.document)
+            if len([doc for doc in filtered_docs if doc.id != self.id]) > 0:
+                raise DuplicatedValue('document')

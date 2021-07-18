@@ -35,7 +35,8 @@ async def create_user(request: Request, credentials: HTTPBasicCredentials = Depe
         manager = ModelManager('users')
         user = User.from_dict(**query_data)
         user.validate_fields()
-        user.validate_unique(manager)
+        user.validate_unique(manager, True)
+
         return manager.create(user)
 
     except InvalidPhone as e:
@@ -59,7 +60,7 @@ async def create_user(request: Request, credentials: HTTPBasicCredentials = Depe
     except Exception as e:
         raise HTTPException(400, 'Dados invalidos: %s' % str(e))
 
-@router.put('/account/{id}')
+@router.put('/account/{id}', status_code=204)
 async def update_user(id: str, request: Request, credentials: HTTPBasicCredentials = Depends(security)):
     '''Update user account'''
 
@@ -70,26 +71,27 @@ async def update_user(id: str, request: Request, credentials: HTTPBasicCredentia
         data = manager.get(id) | query_data  # Bitwise OR
         user = User.from_dict(**data)
         user.validate_fields()
+        user.validate_unique(manager, False)
 
         return manager.update(id, user)
 
     except InvalidPhone as e:
-        raise HTTPException(400, str(e))
+        raise HTTPException(400, "phone: %s" % str(e))
 
     except InvalidBirthday as e:
-        raise HTTPException(400, str(e))
+        raise HTTPException(400, "birthDay: %s" % str(e))
 
     except NotAuthorized as e:
         raise HTTPException(401, 'Nao autorizado', headers={"WWW-Authenticate": "Basic"})
     
     except InvalidDocument as e:
-        raise HTTPException(406, str(e))
+        raise HTTPException(406, "document: %s" % str(e))
 
     except InvalidEmail as e:
-        raise HTTPException(406, str(e))
+        raise HTTPException(406, "email: %s" % str(e))
     
     except DuplicatedValue as e:
-        raise HTTPException(409, str(e))
+        raise HTTPException(409, "Ja cadastrado: %s" % str(e))
     
     except Exception as e:
         raise HTTPException(400, 'Dados invalidos: %s' % str(e))
