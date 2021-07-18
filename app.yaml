@@ -1,0 +1,5 @@
+runtime: python39
+entrypoint: uvicorn account_api.main:app --port 80 --reload
+env_variables: 
+  ACCAPI_G_DEBUG: "false"
+  ACCAPI_G_PROJECT_ID: "acc-api-319922"

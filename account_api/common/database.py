@@ -1,11 +1,16 @@
-from account_api.models.base import IModel
 import os
 
 import firebase_admin
+from account_api.models.base import IModel
 from firebase_admin import credentials, firestore
 from mockfirestore import MockFirestore
 
-cred = credentials.Certificate(os.environ.get('ACCAPI_G_CERTIFICATE'))
+if os.environ.get('ACCAPI_G_DEBUG') == 'true':
+    cred = credentials.Certificate(os.environ.get('ACCAPI_G_CERTIFICATE'))
+
+else:
+    cred = credentials.ApplicationDefault()
+
 firebase_admin.initialize_app(cred, {'projectId': os.environ.get('ACCAPI_G_PROJECT_ID'), })
 
 
