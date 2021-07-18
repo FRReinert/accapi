@@ -66,8 +66,8 @@ class User(IModel, BaseModel):
         else:
             filtered_emails: list = manager.filter('email','==', self.email)
             if len([doc for doc in filtered_emails if doc.id != self.id]) > 0:
-                raise DuplicatedValue('email')
+                raise DuplicatedValue('email ja cadastrado')
             
             filtered_docs: list = manager.filter('document','==', self.document)
             if len([doc for doc in filtered_docs if doc.id != self.id]) > 0:
-                raise DuplicatedValue('document')
+                raise DuplicatedValue('document ja cadastrado')

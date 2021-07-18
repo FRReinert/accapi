@@ -85,7 +85,7 @@ def is_email_valid(value: str) -> bool:
     re.search(regex, value)
 
     if not re.search(regex, value):
-        raise InvalidEmail('E-mail invalido')
+        raise InvalidEmail('Formato invalido')
 
     return True
 

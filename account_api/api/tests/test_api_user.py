@@ -27,7 +27,7 @@ class TestUserPOST(unittest.TestCase):
         cred = make_valid_credential()
         response = self.client.post('/account', headers={'Authorization': cred}, json=valid_data)
         assert response.status_code == 400
-        assert response.json() == {'detail': 'Informar apenas numeros'}
+        assert response.json() == {'detail': 'phone: Informar apenas numeros'}
 
     def test_invalid_email(self):
         valid_data = {
@@ -37,7 +37,7 @@ class TestUserPOST(unittest.TestCase):
         cred = make_valid_credential()
         response = self.client.post('/account', headers={'Authorization': cred}, json=valid_data)
         assert response.status_code == 406
-        assert response.json() == {'detail': 'E-mail invalido'}
+        assert response.json() == {'detail': 'email: Formato invalido'}
 
     def test_used_email(self):
         valid_data = {
@@ -48,6 +48,16 @@ class TestUserPOST(unittest.TestCase):
         response = self.client.post('/account', headers={'Authorization': cred}, json=valid_data)
         assert response.status_code == 409
         assert response.json() == {'detail': 'email ja cadastrado'}
+
+    def test_cpf_used(self):
+        valid_data = {
+            "fullName": "mock_teste_03", "phone": "554733820110",
+            "email": "mock3@bol.com", "document": "67375758034",
+            "birthDay": "15/07/1968"}
+        cred = make_valid_credential()
+        response = self.client.post('/account', headers={'Authorization': cred}, json=valid_data)
+        assert response.status_code == 409
+        assert response.json() == {'detail': 'document ja cadastrado'}
 
 class TestUserGET(unittest.TestCase):
 
@@ -81,6 +91,7 @@ class TestUserGET(unittest.TestCase):
         assert response.status_code == 200
         assert response.json() == valid_data
 
+
 class TestUserPUT(unittest.TestCase):
 
     client = TestClient(app)
@@ -88,13 +99,15 @@ class TestUserPUT(unittest.TestCase):
     def test_user_updated(self):
         cred = make_valid_credential()
 
-        valid_data = {"id": "GN6h5DygDDMES7bhFVFf", "fullName": "mock_teste_01", "email":"mock1@bol.com",
+        valid_data = {"fullName": "mock_teste_01", "email":"mock1@bol.com",
+            "phone":"554733820110","birthDay":"15/07/1968","document":"81370006071"}
+        response_data = {"id": "GN6h5DygDDMES7bhFVFf", "fullName": "mock_teste_01", "email":"mock1@bol.com",
             "phone":"554733820110","birthDay":"15/07/1968","document":"81370006071"}
 
-        response = self.client.put("/account/GN6h5DygDDMES7bhFVFf", headers={'Authorization': cred})
+        response = self.client.put("/account/GN6h5DygDDMES7bhFVFf", headers={'Authorization': cred}, json=valid_data)
 
         # assert response.status_code == 204
-        assert response.json() == valid_data
+        assert response.json() == response_data
 
     def test_invalid_phone(self):
         valid_data = {
@@ -104,7 +117,7 @@ class TestUserPUT(unittest.TestCase):
         cred = make_valid_credential()
         response = self.client.post('/account', headers={'Authorization': cred}, json=valid_data)
         assert response.status_code == 400
-        assert response.json() == {'detail': 'Informar apenas numeros'}
+        assert response.json() == {'detail': 'phone: Informar apenas numeros'}
 
     def test_not_authorized(self):
         valid_data = {
@@ -123,14 +136,24 @@ class TestUserPUT(unittest.TestCase):
         cred = make_valid_credential()
         response = self.client.put('/account/GN6h5DygDDMES7bhFVFf', headers={'Authorization': cred}, json=valid_data)
         assert response.status_code == 406
-        assert response.json() == {'detail': 'E-mail invalido'}
+        assert response.json() == {'detail': 'email: Formato invalido'}
 
     def test_email_used(self):
         valid_data = {
             "fullName": "mock_teste_03", "phone": "554733820110",
-            "email": "mock1@bol.com", "document": "24035987042",
+            "email": "mock2@bol.com", "document": "67375758034",
             "birthDay": "15/07/1968"}
         cred = make_valid_credential()
         response = self.client.put('/account/GN6h5DygDDMES7bhFVFf', headers={'Authorization': cred}, json=valid_data)
-        assert response.status_code == 406
-        assert response.json() == {'detail': 'E-mail invalido'}
+        assert response.status_code == 409
+        assert response.json() == {'detail': 'email ja cadastrado'}
+
+    def test_cpf_used(self):
+        valid_data = {
+            "fullName": "mock_teste_03", "phone": "554733820110",
+            "email": "mock1@bol.com", "document": "67375758034",
+            "birthDay": "15/07/1968"}
+        cred = make_valid_credential()
+        response = self.client.put('/account/GN6h5DygDDMES7bhFVFf', headers={'Authorization': cred}, json=valid_data)
+        assert response.status_code == 409
+        assert response.json() == {'detail': 'document ja cadastrado'}
