@@ -1,6 +1,6 @@
 from account_api.common.database import ModelManager
 from account_api.common.permissions import NotAuthorized, is_authorized
-from account_api.common.validators import DuplicatedValue, InvalidBirthday, InvalidDocument, InvalidEmail, InvalidPhone
+from account_api.common.validators import (DuplicatedValue, InvalidBirthday, InvalidDocument, InvalidEmail, InvalidPhone)
 from account_api.models.user import User
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
@@ -60,7 +60,7 @@ async def create_user(request: Request, credentials: HTTPBasicCredentials = Depe
     except Exception as e:
         raise HTTPException(400, 'Dados invalidos: %s' % str(e))
 
-@router.put('/account/{id}', status_code=204)
+@router.put('/account/{id}')
 async def update_user(id: str, request: Request, credentials: HTTPBasicCredentials = Depends(security)):
     '''Update user account'''
 
@@ -74,6 +74,7 @@ async def update_user(id: str, request: Request, credentials: HTTPBasicCredentia
         user.validate_unique(manager, False)
         user_update = manager.update(id, user)
         return user_update.to_dict()
+
 
     except InvalidPhone as e:
         raise HTTPException(400, "phone: %s" % str(e))
