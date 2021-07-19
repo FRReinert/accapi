@@ -10,25 +10,32 @@
 ## Prepare environment
 
 ```sh
+# Set environment variables
+ACCAPI_G_DEBUG=true
+ACCAPI_G_CERTIFICATE=path/to/cert.json
+ACCAPI_G_PROJECT_ID=GAEPROJID
+ACCAPI_USERNAME=myuser
+ACCAPI_PASSWORD=mypaswd
+
 # Install pipenv
-$ accpi> pip install pipenv
+$ pip install pipenv
 
 # Initialize virtual environment and install dependencies
-$ accpi> pipenv shell && pipenv install
+$ pipenv shell && pipenv install
 ```
 
 ## Run Tests
 
 ```sh
 # Initialize virtual environment
-$ accpi> pipenv shell
+$ pipenv shell
 
 # Run Tests
-$ accpi> pytest
+$ pytest
 ```
 
 ## Run local application
 
 ```sh
-$ accpi> uvicorn account_api.main:app --reload 
+$ uvicorn account_api.main:app --reload 
 ````
